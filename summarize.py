@@ -1,5 +1,27 @@
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
+
+
+def getHtml(video_url):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    browser=webdriver.Chrome(chrome_options=chrome_options)
+    browser.get(video_url)
+    html = browser.page_source
+    browser.close()
+    return html
+
+def transcribe_video(video_url):
+    html = getHtml(video_url)
+    soup = BeautifulSoup()
+
+
+
 def main():
-    print("Hello World!")
+    url = "https://hcpss.instructuremedia.com/embed/f7c70668-3ace-430c-946b-0d8be1034e6e"
+    transcribe_video(url)
 
 if (__name__ == "__main__"):
     main()
