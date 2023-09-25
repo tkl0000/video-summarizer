@@ -6,13 +6,24 @@ import urllib.request
 import time
 import whisper
 import openai
+from pytube import YouTube
+import os
 
 def get_key():
     with open("key.txt", "r") as r:
         return r.read()
-    
-#returns file name
-def download_audio(canvas_url):
+
+def download_youtube_audio(youtube_url):
+    try:
+        yt = YouTube(youtube_url)
+    except:
+        print("Connection Error!")
+    audio_stream = yt.streams.get_audio_only()
+    filename = yt.title + ".mp4"
+    audio_stream.download(output_path=os.getcwd())
+    return filename
+
+def download_canvas_audio(canvas_url):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--window-size=0,0")
@@ -23,9 +34,18 @@ def download_audio(canvas_url):
     browser.close()
     soup = BeautifulSoup(html, "html.parser")
     video_url = soup.find_all("source")[0].get("src")
-    filename = (soup.find_all({"property" : "og:title"})[0].get("content")) + ".mp3"
+    filename = (soup.find_all(attrs={"property" : "og:title"})[0].get("content")) + ".mp3"
     urllib.request.urlretrieve(video_url, filename)
     return filename
+
+#returns file name
+def download_audio(url):
+    if ("youtube.com" in url):
+        return download_youtube_audio(url)
+    elif ("instructuremedia" in url):
+        return download_canvas_audio(url)
+    else:
+        return "Invalid URL!"
 
 def transcribe_audio(filename):
     model = whisper.load_model("medium.en")
@@ -51,9 +71,10 @@ def summarize(text):
     response_text = response['choices'][0]['message']['content']
     return response_text
 
+#test url: "https://hcpss.instructuremedia.com/embed/f7c70668-3ace-430c-946b-0d8be1034e6e"
 def main():
     start_time = time.time()
-    url = "https://hcpss.instructuremedia.com/embed/f7c70668-3ace-430c-946b-0d8be1034e6e"
+    url = input("Enter Video URL: ")
     audio_file = download_audio(url)
     text = transcribe_audio(audio_file)
     summarized_text = summarize(text)
