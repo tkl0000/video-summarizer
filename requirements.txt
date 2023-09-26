@@ -1,2 +1,5 @@
 openai-whisper
+openai
 selenium
+pytube
+beautifulsoup4
