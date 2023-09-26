@@ -3,3 +3,4 @@ openai
 selenium
 pytube
 beautifulsoup4
+ffmpeg
